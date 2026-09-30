@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<title>Positive Psychologie – Karteikarten</title>
+<meta name="description" content="Karteikarten zur Klausurvorbereitung Positive Psychologie (FOM, Prof. Dr. Schorlemmer)">
+<meta name="theme-color" content="#0f766e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PosPsy">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+  :root{
+    --bg:#0b1220; --bg2:#111c2e; --fg:#e8eef6; --muted:#93a4bd;
+    --accent:#2dd4bf; --accent2:#0f766e; --good:#34d399; --again:#fbbf24;
+    --card:#16233a; --line:#25354f; --radius:20px;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f4f7fb; --bg2:#ffffff; --fg:#10203a; --muted:#5c6f8c;
+           --card:#ffffff; --line:#dde5f0; }
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ height:100%; margin:0; }
+  body{
+    background:var(--bg); color:var(--fg);
+    font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    display:flex; flex-direction:column;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    overscroll-behavior:none; overflow-x:hidden;
+  }
+
+  header{ padding:10px 14px 6px; border-bottom:1px solid var(--line); background:var(--bg2); }
+  .row{ display:flex; gap:8px; align-items:center; }
+  .row.wrap{ flex-wrap:wrap; }
+  h1{ font-size:clamp(12px,3.6vw,15px); margin:0; font-weight:700; letter-spacing:.2px; flex:1; min-width:0; }
+  select, button{ font:inherit; color:var(--fg); }
+  select{
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:8px 10px; max-width:100%; flex:1; min-width:0;
+  }
+  .pill{
+    background:var(--card); border:1px solid var(--line); border-radius:999px;
+    padding:6px 10px; font-size:clamp(11px,3vw,13px); cursor:pointer; white-space:nowrap;
+    min-width:0; overflow:hidden; text-overflow:ellipsis;
+  }
+  .pill.on{ background:var(--accent2); border-color:var(--accent2); color:#fff; }
+  .bar{ height:6px; background:var(--line); border-radius:999px; overflow:hidden; margin-top:10px; }
+  .bar > i{ display:block; height:100%; width:0; background:linear-gradient(90deg,var(--accent2),var(--accent)); transition:width .25s; }
+  .meta{ display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-top:6px; }
+
+  main{ flex:1; display:flex; padding:14px; min-height:0; }
+  .scene{ flex:1; perspective:1400px; min-height:0; }
+  .card{
+    position:relative; width:100%; height:100%;
+    transform-style:preserve-3d; transition:transform .45s cubic-bezier(.2,.8,.2,1);
+    cursor:pointer;
+  }
+  .card.flipped{ transform:rotateY(180deg); }
+  .face{
+    position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden;
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:20px 18px; display:flex; flex-direction:column; overflow:auto;
+    box-shadow:0 10px 30px rgba(0,0,0,.18);
+    -webkit-overflow-scrolling:touch;
+  }
+  .face.back{ transform:rotateY(180deg); }
+  .tag{ font-size:11px; letter-spacing:.8px; text-transform:uppercase; color:var(--accent); font-weight:700; margin-bottom:12px; }
+  .q{ font-size:clamp(18px,4.6vw,24px); font-weight:650; line-height:1.35; white-space:pre-wrap; }
+  .a{ font-size:clamp(15px,3.8vw,18px); white-space:pre-wrap; }
+  .hint{ margin-top:auto; padding-top:14px; font-size:12px; color:var(--muted); }
+  .src{ margin-top:14px; font-size:12px; color:var(--muted); font-style:italic; }
+
+  footer{ padding:10px 14px calc(14px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); background:var(--bg2); }
+  .btns{ display:flex; gap:10px; }
+  .btn{
+    flex:1 1 0; min-width:0; padding:14px 4px; border-radius:16px; border:1px solid var(--line);
+    background:var(--card); font-weight:650; font-size:clamp(13px,3.6vw,15px); cursor:pointer;
+    white-space:nowrap;
+  }
+  .btn.again{ background:var(--again); border-color:var(--again); color:#3b2a02; }
+  .btn.good{ background:var(--good); border-color:var(--good); color:#053526; }
+  .btn.flip{ background:var(--accent2); border-color:var(--accent2); color:#fff; }
+  .mini{ display:flex; gap:8px; margin-top:8px; }
+  .mini .pill{ flex:1; text-align:center; }
+  .done{ text-align:center; padding:40px 20px; }
+  .done h2{ margin:0 0 10px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="row">
+    <h1>Positive Psychologie · Karteikarten</h1>
+    <button class="pill" id="shuffle" title="Mischen">Mischen</button>
+  </div>
+  <div class="row wrap" style="margin-top:8px">
+    <select id="cat"></select>
+    <button class="pill" id="modeBtn" title="Nur schwierige Karten">Alle</button>
+  </div>
+  <div class="bar"><i id="barFill"></i></div>
+  <div class="meta">
+    <span id="counter">–</span>
+    <span id="stats">–</span>
+  </div>
+</header>
+
+<main>
+  <div class="scene">
+    <div class="card" id="card">
+      <div class="face front">
+        <div class="tag" id="tagF">–</div>
+        <div class="q" id="qText">Lade …</div>
+        <div class="hint">Tippen zum Umdrehen</div>
+      </div>
+      <div class="face back">
+        <div class="tag" id="tagB">–</div>
+        <div class="a" id="aText"></div>
+        <div class="src" id="srcText"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="btns">
+    <button class="btn again" id="btnAgain">Nochmal</button>
+    <button class="btn flip" id="btnFlip">Umdrehen</button>
+    <button class="btn good" id="btnGood">Gewusst</button>
+  </div>
+  <div class="mini">
+    <button class="pill" id="btnPrev">◀</button>
+    <button class="pill" id="btnReset">Zurücksetzen</button>
+    <button class="pill" id="btnNext">▶</button>
+  </div>
+</footer>
+
+<script id="cards" type="application/json">
+[
+{"c":"1 Grundlagen","q":"Wie wird Positive Psychologie definiert?","a":"Die wissenschaftliche Erforschung dessen, was das Leben lebenswert macht.\n\nEin Aufruf an psychologische Wissenschaft und Anwendung,\n• sich genauso mit menschlichen Stärken zu beschäftigen wie mit Schwächen,\n• genauso daran interessiert zu sein, die besten Dinge im Leben zu fördern, wie die schlimmsten zu reparieren,\n• sich ebenso damit zu befassen, das Leben normaler Menschen erfüllter zu machen, wie damit, Pathologie zu heilen.","s":"Snyder & Lopez (2021), S. 23 ff."},
+{"c":"1 Grundlagen","q":"Merksatz: Was bedeutet Positive Psychologie NICHT?","a":"Sie bedeutet nicht „alles positiv reden“ oder dauerhaft gute Laune.\n\nSie fragt wissenschaftlich: Was lässt Menschen, Gruppen und Organisationen aufblühen (Flourishing)?\n\nSie ergänzt die klinische/defizitorientierte Psychologie, ersetzt sie aber nicht. Negative Emotionen gelten als funktional und notwendig.","s":""},
+{"c":"1 Grundlagen","q":"Wer gilt als Begründer der modernen Positiven Psychologie – und in welchem Kontext?","a":"Martin E. P. Seligman.\n\n• Perspektivenwechsel nach dem 2. Weltkrieg\n• APA-Rede 1998 – „Die neue Psychologie“\n• Zitat: „For the last 60 years psychology has been consumed with a single topic only – mental illness. And it forgot about making normal people happier.“","s":"Seligman (2012), Flourish"},
+{"c":"1 Grundlagen","q":"Welchen vierfachen Perspektivenwechsel beschreibt die Positive Psychologie?","a":"1) Pathogenese → Salutogenese\n2) Korrektur von Schwächen → Aufbau von Stärken\n3) Negative Emotionen → Positive Emotionen & Kreativität\n4) Reine Problembehebung → Aufbau von Lebensqualität, Wohlbefinden und Stärken","s":""},
+{"c":"1 Grundlagen","q":"Nenne die zentralen Ziele der Positiven Psychologie.","a":"• Stärkung individueller Erfüllung und Stärken\n• Leben normaler Menschen erfüllter machen\n• Wohlbefinden, Zufriedenheit, Flow, Freude und Glück fördern\n• Zukunftsorientierung: Optimismus, Hoffnung, Glaube\n• Prävention psychischer Belastungen durch Aufbau von Ressourcen und Kompetenzen\n• Psychologie nicht nur zur Problembehebung, sondern zum Aufbau von Lebensqualität","s":""},
+{"c":"1 Grundlagen","q":"Wie sind die Schwerpunkte der Positiven Psychologie zeitlich gegliedert?","a":"Vergangenheit und Gegenwart:\n• Wohlbefinden & Zufriedenheit\n• Flow, Freude und Glück\n\nZukunft:\n• Optimismus, Hoffnung & Glaube\n\nJeweils auf individueller und auf Gruppenebene.","s":""},
+{"c":"1 Grundlagen","q":"Was bedeutet der präventive Charakter der Positiven Psychologie?","a":"Fokus auf den Schutz vor psychischen Krankheiten durch Aufbau von Stärken, Kompetenzen und positiven Eigenschaften (z. B. Optimismus, Resilienz, mentale Stärke).\n\nMethode: Trainingsprogramme (z. B. Resilienz, Achtsamkeit) zur Stärkung vorhandener Stärken.\n\nBisher wenig in der Psychotherapie genutzt, aber fester Bestandteil in Coaching und Beratung – Tendenz steigend. Anwendung auch auf gesellschaftlicher und organisationaler Ebene.","s":""},
+{"c":"1 Grundlagen","q":"Wie ist die Positive Psychologie institutionell verankert?","a":"• APA (American Psychological Association) seit 1998\n• DGPP (Deutsche Gesellschaft für Positive Psychologie) seit 2015\n• Hohe Interdisziplinarität\n• Fachkongresse: IPPA World Congress, ECPP, DGPPF","s":""},
+{"c":"1 Grundlagen","q":"Was ist die „4. Welle“ der Positiven Psychologie?","a":"Der Schwerpunkt auf Posttraumatischem Wachstum – vertreten u. a. durch Prof. Dr. Judith Mangelsdorf.\n\nKernaussage: Menschen können aus Krisen nicht nur zurückkehren, sondern gereift und verändert hervorgehen.","s":""},
+{"c":"1 Grundlagen","q":"Was ist mit der kulturellen Einbettung der Positiven Psychologie gemeint?","a":"Die Konstrukte sind kulturell geprägt:\n• Verständnis und Rolle von Achtsamkeit, Meditation etc.\n• Relevanz einzelner Stärken und Charaktereigenschaften\n• Glückstraditionen und Verständnis von Glück\n• Zusammenspiel von Geist und Seele\n\nIndividualistische Kulturen: Selbstwert, persönliche Erfolge, individuelle Zielerreichung.\nKollektivistische Kulturen: soziale Harmonie, Pflichterfüllung, Beziehungsqualität.\n\nKlausurhinweis: Modelle dürfen nicht unreflektiert universalisiert werden.","s":""},
+{"c":"1 Grundlagen","q":"Welche Anwendungsfelder hat die Positive Psychologie?","a":"• Coaching und Beratung\n• Arbeits- und Organisationskontexte\n• Führung (Positive Leadership)\n• Prävention und Gesundheitsförderung\n• Change-Prozesse\n• Bildung und gesellschaftliche Ebene","s":""},
+{"c":"1 Grundlagen","q":"Welche zwei Modellgrundlagen nennt das Skript für die Positive Psychologie?","a":"1) PERMA-V-Modell (Seligman 2011, Erweiterung von Zhivotovskaya 2016/2021)\n2) Modell des positiven Selbstmanagements (Braun et al., 2020)","s":""},
+{"c":"1 Grundlagen","q":"Welche Rolle spielen positive Emotionen und Charakterstärken als Grundbausteine?","a":"Beide sind zentrale Grundlagen der Positiven Psychologie:\n\n• Positive Emotionen eröffnen Handlungs- und Denkräume (→ Broaden-and-Build)\n• Charakterstärken machen individuelle Ressourcen sichtbar und für Entwicklung nutzbar","s":""},
+
+{"c":"2 Wohlbefinden & Glück","q":"Erkläre die Unterscheidung State vs. Trait.","a":"State = situationsspezifischer, aktueller Zustand (z. B. momentane Freude)\nTrait = überdauernde Eigenschaft/Tendenz (z. B. langfristiges Lebensglück)\n\nParallele zur Angstforschung: akute Angst (State) vs. Ängstlichkeit (Trait).","s":"Mayring (2020)"},
+{"c":"2 Wohlbefinden & Glück","q":"Wie unterscheiden sich Emotion und Affekt?","a":"Emotion: Gefühl nach innen gerichtet, wird kognitiv reflektiert, hat einen Bezug, ist komplexer.\n\nAffekt: nach außen sichtbar, kurzfristiger, instinktiver.","s":""},
+{"c":"2 Wohlbefinden & Glück","q":"Ist Glück ein State oder ein Trait?","a":"Beides:\n• Momentanes Glücksgefühl = State\n• Langfristiges Lebensglück = Trait","s":""},
+{"c":"2 Wohlbefinden & Glück","q":"Warum ist „Glück“ ein vieldeutiger Oberbegriff? In welche zwei Hauptkomponenten wird es zerlegt?","a":"In der Positiven Psychologie wird „Glück“ (happiness) zerlegt in:\n\n1) Hedonisches Wohlbefinden – „Feeling Good“\n2) Eudaimonisches Wohlbefinden – „Functioning Well“","s":""},
+{"c":"2 Wohlbefinden & Glück","q":"Beschreibe hedonisches Wohlbefinden („Feeling Good“).","a":"Definition: Erleben positiver Emotionen (Freude, Vergnügen, Genuss) und Abwesenheit negativer Emotionen.\n\nFokus: affektiver, gefühlsmäßiger Aspekt des Lebens\nZeitliche Natur: oft kurzfristig, situationsabhängig, Momentzustand\nLeitfrage: „Wie fühle ich mich gerade jetzt?“\nWichtiger Forscher: Daniel Kahneman (erlebendes vs. erinnerndes Selbst)","s":""},
+{"c":"2 Wohlbefinden & Glück","q":"Beschreibe eudaimonisches Wohlbefinden („Functioning Well“).","a":"Definition: Ein erfülltes Leben im Einklang mit den eigenen Werten und Potenzialen – Selbstverwirklichung und Sinnhaftigkeit.\n\nFokus: Wachstum, Sinn, Authentizität, Einbringen der eigenen Stärken\nZeitliche Natur: langfristig, prozesshaft, eine Lebenshaltung\nLeitfrage: „Lebe ich ein sinnvolles und authentisches Leben?“\nWichtige Vertreter: Aristoteles (Eudaimonia), Carol Ryff, Deci & Ryan (Selbstbestimmungstheorie)","s":""},
+{"c":"2 Wohlbefinden & Glück","q":"Aus welchen Komponenten besteht Subjektives Wohlbefinden nach Diener?","a":"Affektive Komponenten:\n• Positiver Affekt (Häufigkeit/Intensität positiver Gefühle)\n• Negativer Affekt (Häufigkeit/Intensität negativer Gefühle)\n\nKognitive Komponenten:\n• Lebenszufriedenheit (globale Bewertung)\n• Domänenspezifische Zufriedenheit (z. B. Arbeit, Gesundheit, Beziehungen)","s":"Diener et al. (1999)"},
+{"c":"2 Wohlbefinden & Glück","q":"Definiere Lebenszufriedenheit.","a":"Lebenszufriedenheit ist eine kognitive, globale Bewertung des eigenen Lebens im Vergleich zu einem selbst gesetzten Standard.\n\n• Kognitiv: ein Gedanke/Urteil, kein Gefühl\n• Global: bezieht sich auf das Leben als Ganzes\n• Vergleich mit Standard: hängt von eigenen Erwartungen, Zielen und Werten ab","s":""},
+{"c":"2 Wohlbefinden & Glück","q":"Welche besonderen Merkmale hat Lebenszufriedenheit?","a":"• Reflexiv: erfordert Nachdenken und bewusste Bewertung\n• Relativ stabil: ändert sich langsamer als momentane Stimmungen\n• Gut messbar: z. B. Satisfaction with Life Scale (SWLS) von Ed Diener","s":""},
+{"c":"2 Wohlbefinden & Glück","q":"Nenne die 5 Items der deutschen Satisfaction with Life Scale (SWLS).","a":"1. In den meisten Bereichen entspricht mein Leben meinen Idealvorstellungen.\n2. Meine Lebensbedingungen sind ausgezeichnet.\n3. Ich bin mit meinem Leben zufrieden.\n4. Bisher habe ich die wesentlichen Dinge erreicht, die ich mir für mein Leben wünsche.\n5. Wenn ich mein Leben noch einmal leben könnte, würde ich kaum etwas ändern.\n\n7-stufiges Antwortformat: 1 = „trifft überhaupt nicht zu“, 4 = „teils/teils“, 7 = „trifft vollständig zu“","s":"Janke & Glöckner-Rist (2012)"},
+{"c":"2 Wohlbefinden & Glück","q":"Warum gilt Wohlbefinden als „holistisches Dachkonzept“?","a":"• Wohlbefinden (well-being) ist das umfassendste der drei Konstrukte\n• Es beschreibt den Zustand des menschlichen Aufblühens (Flourishing)\n• Es integriert hedonische UND eudaimonische Aspekte\n• Bekanntestes Modell: PERMA (Seligman)\n\nMerkmale: multidimensional (mehr als ein Gefühl) und aktiv gestaltbar (jede Säule ist trainierbar).","s":""},
+{"c":"2 Wohlbefinden & Glück","q":"Nenne die 6 Dimensionen des psychologischen Wohlbefindens nach Ryff (1989).","a":"1. Selbstakzeptanz\n2. Positive Beziehungen\n3. Autonomie\n4. Umweltgestaltung (Umweltbewältigung)\n5. Lebenssinn / Lebensaufgabe\n6. Persönliches Wachstum\n\nFokus: Eudaimonie (Erfüllung).","s":"Ryff (1989)"},
+{"c":"2 Wohlbefinden & Glück","q":"Was ist die HSWBS?","a":"Habituelle Subjektive Wohlbefindensskala (Dalbert, 2002).\n\n• 13 Items, 6-stufiges Antwortformat (1 = „stimmt überhaupt nicht“ bis 6 = „stimmt genau“)\n• Beispielitems: „Ich halte mich für eine glückliche Person“, „Ich fühle mich meist ziemlich fröhlich“, „Ich bin mit meinem Leben zufrieden“\n• Misst habituelles (überdauerndes) Wohlbefinden","s":"Dalbert (2002)"},
+{"c":"2 Wohlbefinden & Glück","q":"Welche vier Faktorengruppen beeinflussen subjektives Wohlbefinden?","a":"1) Persönlichkeit / Traits – z. B. Extraversion ↔ positive Emotionen, Neurotizismus ↔ negative Emotionen → individueller „Set-Point“ bzw. „Thermostat“\n2) Lebensereignisse – inkl. hedonistischer Adaption; Set-Point veränderbar (z. B. lange Arbeitslosigkeit, Trauma)\n3) Kultur – Prädiktoren variieren weltweit\n4) Absichtsvolle Handlungen – z. B. Dankbarkeit, Optimismus, Beziehungen, Bewegung, sinnerfüllte Ziele","s":""},
+{"c":"2 Wohlbefinden & Glück","q":"Was versteht man unter hedonistischer Adaption?","a":"Positive oder negative Umstände sind oft nur von kurzer Wirkdauer – Menschen gewöhnen sich daran und es entsteht eine „neue Normalität“.\n\nKonsequenz: Äußere Veränderungen (Gehalt, Auto, Umzug) verändern das Wohlbefinden langfristig weniger als erwartet.","s":""},
+{"c":"2 Wohlbefinden & Glück","q":"Erkläre die 50-40-10-Formel des Glücks.","a":"• ca. 50 % Set-Point / genetische Veranlagung\n• ca. 40 % absichtsvolle Aktivitäten\n• ca. 10 % Lebensumstände\n\nKernaussage: Wohlbefinden ist NICHT vollständig durch Umstände oder Gene festgelegt – ein erheblicher Teil ist aktiv gestaltbar.","s":"Lyubomirsky, Sheldon & Schkade (2005)"},
+{"c":"2 Wohlbefinden & Glück","q":"Welche drei Arten absichtsvoller Aktivitäten unterscheidet Lyubomirsky?","a":"1) Kognitive Aktivitäten: Dankbarkeit praktizieren, Optimismus trainieren, Sorgen vermeiden, soziale Vergleiche reduzieren, positive Erlebnisse auskosten\n2) Verhaltensbezogene Aktivitäten: soziale Beziehungen pflegen, Gutes für andere tun, sich bewegen, sinnerfüllte Ziele verfolgen\n3) Volitionale Aktivitäten: bewusste Entscheidung, sich auf die eigenen Ziele zu konzentrieren und dranzubleiben → Selbstregulation","s":""},
+{"c":"2 Wohlbefinden & Glück","q":"Welche begrifflichen Abgrenzungen sind bei „Wohlbefinden“ wichtig?","a":"• Well-being (engl.) ≠ Wohlbefinden (dt.) – englisch ist breiter zu verstehen\n• Happiness (engl.) unterscheidet sich vom dt. „Glück“; happiness wird oft als Synonym für well-being genutzt\n• Wohlbefinden kann als Synonym für Gesundheit oder Lebenszufriedenheit verwendet werden\n• Mood = Laune","s":""},
+{"c":"2 Wohlbefinden & Glück","q":"Warum ist die saubere Unterscheidung von Glück, Wohlbefinden und Zufriedenheit für Coaching relevant?","a":"1) Präzise Diagnostik: Was meint jemand mit „Unglücklichsein“? Fehlt es an positiven Momenten, an Sinn oder an Lebenszufriedenheit?\n2) Gezielte Interventionen: je nach „Diagnose“ andere Methode, z. B. Genusstraining vs. Wertearbeit\n3) Klarere Zielsetzung: vage Wünsche („glücklich sein“) in konkrete, messbare Ziele übersetzen (z. B. „mehr bedeutungsvolle Beziehungen pflegen“)","s":""},
+{"c":"2 Wohlbefinden & Glück","q":"Welche drei Formen des Glücks unterscheiden Peterson et al. (2006)?","a":"1) Kurzfristiges Vergnügen (z. B. Eis essen)\n2) Eudämonie (z. B. heute etwas auf der Arbeit bewirken)\n3) Engagement/Flow (z. B. in einer Aufgabe aufgehen, Zeit vergessen)","s":"Peterson, Park & Seligman (2006)"},
+{"c":"2 Wohlbefinden & Glück","q":"Wie verhalten sich Glück, Wohlbefinden und Lebenszufriedenheit zueinander?","a":"Glück: mehrdeutiger Oberbegriff – momentanes Glücksgefühl ODER langfristiges Lebensglück.\nLeitfrage: „Wie glücklich fühle ich mich gerade/insgesamt?“\n\nWohlbefinden: umfassendes Dachkonzept, integriert hedonische und eudaimonische Aspekte.\nLeitfrage: „Blühe ich in meinem Leben auf?“\n\nLebenszufriedenheit: kognitive, globale Bewertung des eigenen Lebens.\nLeitfrage: „Wie zufrieden bin ich mit meinem Leben als Ganzes?“","s":""},
+{"c":"2 Wohlbefinden & Glück","q":"Wie verhalten sich SWB (Diener) und psychologisches Wohlbefinden (Ryff) zueinander?","a":"Beide sind Teilkonzepte des Dachkonzepts „Wohlbefinden/Flourishing“.\n\nSWB nach Diener – zwei Komponenten:\n• affektiv: hohe positive / geringe negative Emotionen (≈ hedonisches Glück)\n• kognitiv: hohe Lebenszufriedenheit\n\nPWB nach Ryff – Fokus auf Eudaimonie: Selbstakzeptanz, persönliches Wachstum, Sinn im Leben, positive Beziehungen, Autonomie, Umweltbewältigung","s":""},
+
+{"c":"3 PERMA & Flow","q":"Wofür stehen die Buchstaben von PERMA-V?","a":"P – Positive Emotionen\nE – Engagement\nR – Relationships (positive Beziehungen)\nM – Meaning (Sinnhaftigkeit)\nA – Accomplishment (Erfolgserleben)\nV – Vitalität\n\nZiel der Positiven Psychologie: zunehmendes Aufblühen (Flourishing) durch Verstärkung dieser Elemente.","s":"Seligman (2011); Zhivotovskaya (2016, 2021)"},
+{"c":"3 PERMA & Flow","q":"Welche drei Kriterien muss ein Element erfüllen, um ein PERMA-Element zu sein?","a":"1. Es muss zum Wohlbefinden beitragen.\n2. Seine Erreichung muss um seiner selbst willen verfolgt werden.\n3. Es muss unabhängig von den anderen Elementen und messbar sein.","s":""},
+{"c":"3 PERMA & Flow","q":"PERMA: P – Positive Emotionen. Kernidee und Leitfrage?","a":"Kernidee: Freude, Dankbarkeit, Hoffnung, Interesse, Stolz, Gelassenheit bewusst ermöglichen – ohne negative Emotionen zu unterdrücken.\n\nLeitfrage: „Was lässt dich gut fühlen?“","s":""},
+{"c":"3 PERMA & Flow","q":"PERMA: E – Engagement. Kernidee und Leitfrage?","a":"Kernidee: Im Tun aufgehen – Flow erleben und eigene Stärken nutzen. Passung zwischen Fähigkeiten und Anforderungen herstellen.\n\nLeitfrage: „Wann bist du im Flow?“","s":""},
+{"c":"3 PERMA & Flow","q":"PERMA: R – Relationships. Kernidee und Leitfrage?","a":"Kernidee: Positive Beziehungen leben und Verbundenheit spüren – Unterstützung, Vertrauen, Zugehörigkeit als zentrale Ressource für Wohlbefinden.\n\nLeitfrage: „Wer macht dich glücklich und unterstützt dich?“","s":""},
+{"c":"3 PERMA & Flow","q":"PERMA: M – Meaning. Kernidee und Leitfrage?","a":"Kernidee: Sinn erkennen und etwas Größerem dienen – Verbindung zu eigenen Werten und einem größeren Zweck.\n\nLeitfrage: „Welche Werte sind dir wichtig? Was erfüllt dich?“","s":""},
+{"c":"3 PERMA & Flow","q":"PERMA: A – Accomplishment. Kernidee und Leitfrage?","a":"Kernidee: Zielerreichung, Kompetenz, Fortschritt und Selbstwirksamkeit – etwas schaffen und Erfolge sichtbar machen.\n\nLeitfrage: „Was sind deine Ziele? Wie erreichst du sie?“","s":""},
+{"c":"3 PERMA & Flow","q":"PERMA-V: V – Vitalität. Kernidee?","a":"Kernidee: Energie, körperliche Gesundheit und Lebendigkeit. Wohlbefinden hat auch eine körperlich-energetische Seite.\n\nKonkret: Bewegung, gesunde Ernährung, guter Schlaf, Regeneration.\n\nErweiterung des ursprünglichen PERMA-Modells durch Zhivotovskaya (2016, 2021).","s":""},
+{"c":"3 PERMA & Flow","q":"Welche positiven Emotionen nennt Fredrickson?","a":"Freude, Dankbarkeit, Gelassenheit, Liebe, Interesse, Hoffnung, Stolz, Vergnügen, Inspiration, Ehrfurcht.","s":"Fredrickson (2001)"},
+{"c":"3 PERMA & Flow","q":"Was besagt die Broaden-and-Build-Theorie?","a":"Positive Emotionen wirken über zwei Mechanismen:\n\nBROADEN (Erweitern): Positive Emotionen erweitern Aufmerksamkeit, Denken und Handlungsspielräume.\n\nBUILD (Aufbauen): Durch das erweiterte Denken und Handeln werden langfristig persönliche Ressourcen aufgebaut.\n\nEmpirischer Nachweis: Positive Emotionen verbessern Leistungsfähigkeit, Ausdauer, Konzentration und Handlungsfähigkeit.","s":"Fredrickson (2001), American Psychologist 56(3)"},
+{"c":"3 PERMA & Flow","q":"Was bewirkt „Broaden“ konkret?","a":"Positive Emotionen öffnen den Geist – wir werden:\n• kreativer\n• offener für neue Ideen und Informationen\n• sehen mehr Möglichkeiten → „Think outside the box“\n• knüpfen leichter soziale Kontakte\n• Weitblick statt Tunnelblick\n\nBeispiel: Freude lässt uns spielen wollen → wir lernen neue Fähigkeiten.","s":""},
+{"c":"3 PERMA & Flow","q":"Welche vier Ressourcenarten werden durch „Build“ aufgebaut?","a":"1) Intellektuell: Wissen, Problemlösefähigkeiten\n2) Physisch: Koordination, Kraft (durch Spiel/Bewegung)\n3) Sozial: Freundschaften, Netzwerke\n4) Psychologisch: Resilienz, Optimismus, Selbstwirksamkeit","s":""},
+{"c":"3 PERMA & Flow","q":"Wie lautet die Aufwärtsspirale der Broaden-and-Build-Theorie?","a":"Positive Emotionen → Broaden → Build → mehr Ressourcen → mehr positive Emotionen → …","s":""},
+{"c":"3 PERMA & Flow","q":"Mit welchem Experiment wurde die Broaden-Hypothese geprüft?","a":"Fredrickson & Branigan (2005): Teilnehmende sahen Filme, die (a) Belustigung, (b) Zufriedenheit, (c) Neutralität, (d) Wut oder (e) Angst hervorriefen.\n\nOperationalisierung:\n• Aufmerksamkeit über Blickbewegung\n• Denk- und Handlungsbreite über den „20-Statement-Test“\n\nErgebnis: Belustigung und Zufriedenheit erhöhten im Vergleich zu neutral die Aufmerksamkeit; Wut und Angst verringerten die Denk- und Handlungsbreite.","s":"Fredrickson & Branigan (2005)"},
+{"c":"3 PERMA & Flow","q":"Warum ist Broaden-and-Build wichtig für Coaching, Beratung und Change?","a":"Positive Emotionen erweitern den Möglichkeitsraum:\n• Menschen kommen aus dem Tunnelblick heraus\n• erkennen eigene Ressourcen\n• entwickeln alternative Handlungsoptionen\n• bauen langfristig Resilienz, Optimismus und Selbstwirksamkeit auf\n\n→ Erst positive Emotionen schaffen die Voraussetzung für Lernen und Veränderung.","s":""},
+{"c":"3 PERMA & Flow","q":"Definiere Flow.","a":"Flow beschreibt einen Zustand des vollkommenen und reflexionsfreien Vertiefens und Aufgehens in einer Tätigkeit, die persönlich herausfordernd ist und dennoch optimal gelingt, d. h. glatt und fließend abläuft.","s":"Csikszentmihályi (1975, 1992, 2002)"},
+{"c":"3 PERMA & Flow","q":"Wie entsteht Flow?","a":"In der Balance zwischen\n• persönlicher Fähigkeit und Fertigkeit (skill) und\n• Anforderung der Situation bzw. Schwierigkeit der Aufgabe (challenge)\n\n→ Herausforderung zu niedrig = Langeweile\n→ Herausforderung zu hoch = Überforderung/Angst\n→ Optimale Passung = Flow\n\nJede Tätigkeit bietet grundsätzlich die Möglichkeit für Flow (Blickhan, 2018).","s":"Csikszentmihályi (2002, 2018)"},
+{"c":"3 PERMA & Flow","q":"Welche vier Wirkebenen von Flow werden unterschieden?","a":"• affektiv: positive Gefühle\n• kognitiv: Steigerung von Aufmerksamkeitsspanne und Konzentration\n• konativ: Korrelation mit Leistung und Erfolg (Beruf, Lernen)\n• physiologisch: Cortisolwerte moderat erhöht","s":""},
+{"c":"3 PERMA & Flow","q":"Wie ist die Flow-Kurzskala (FKS) aufgebaut?","a":"Rheinberg, Vollmeyer & Engeser (2019), 7-stufige Likert-Skala („trifft nicht zu“ bis „trifft zu“):\n\n• Items 1–10: Flow\n• Items 11–13: Besorgnis\n• Items 14–16: Verhältnis zwischen Flow und Besorgnis (Schwierigkeit, eigene Fähigkeiten, Passung der Anforderungen)","s":"Rheinberg et al. (2019)"},
+{"c":"3 PERMA & Flow","q":"Nenne typische Items der Flow-Kurzskala.","a":"• Ich fühle mich optimal beansprucht.\n• Meine Gedanken bzw. Aktivitäten laufen flüssig und glatt.\n• Ich merke gar nicht, wie die Zeit vergeht.\n• Ich habe keine Mühe, mich zu konzentrieren.\n• Mein Kopf ist völlig klar.\n• Ich bin ganz vertieft in das, was ich gerade mache.\n• Die richtigen Gedanken/Bewegungen kommen wie von selbst.\n• Ich habe das Gefühl, den Ablauf unter Kontrolle zu haben.\n• Ich bin völlig selbstvergessen.\n\nBesorgnis-Items: „Es steht etwas für mich Wichtiges auf dem Spiel“, „Ich darf jetzt keine Fehler machen“, „Ich mache mir Sorgen über einen Misserfolg“.","s":""},
+{"c":"3 PERMA & Flow","q":"Wo wird Flow in PERMA eingeordnet?","a":"Bei E – Engagement.\n\nFlow ist der Kern von Engagement: im Tun aufgehen, intrinsisch motiviert, konzentriert und involviert sein.","s":""},
+{"c":"3 PERMA & Flow","q":"Definiere Charakterstärken.","a":"• Charakterstärken und Tugenden sind Kerncharakteristiken des menschlichen Funktionierens.\n• Charakterstärken sind psychologische Merkmale, die die Tugenden definieren.\n• Sie bilden einen Teil der Persönlichkeit ab.\n• Annahme: über Situationen und Zeit hinweg relativ stabil – können sich aber als Resultat von Lebenserfahrungen verändern bzw. weiterentwickeln.","s":"Seligman & Peterson (2004)"},
+{"c":"3 PERMA & Flow","q":"Wie funktioniert der Stärken-Check in vier Schritten?","a":"1. „Es ist etwas, das aus mir herausdrängt und mir Energie gibt, wenn ich es ausleben kann. Das bin wirklich ich, wenn ich das mache!“\n2. „Es fehlt mir etwas, wenn ich es nicht ausleben kann.“\n3. „Es kostet mich Energie, wenn ich es zurückhalten muss, weil es z. B. nicht zur Situation passt.“\n4. „Es kommt auch vor, dass ich mehr davon mache, als gut ist.“","s":"Ebner (2024)"},
+{"c":"3 PERMA & Flow","q":"Mit welchen Fragen können Stärken in der Beratung identifiziert werden?","a":"• „Wann fühlen Sie sich energiegeladen/authentisch?“\n• „Was fällt Ihnen leicht?“\n• „Wofür bekommen Sie Komplimente?“\n• VIA-Test als Hausaufgabe vorschlagen","s":""},
+{"c":"3 PERMA & Flow","q":"Mit welchen Fragen können Stärken in der Beratung eingesetzt werden?","a":"• „Wie könnte Ihnen Ihre Stärke [z. B. Kreativität oder Humor] helfen, dieses Ziel zu erreichen?“\n• „In welcher vergangenen Situation hat Ihnen Ihre [z. B. Ausdauer oder Mut] schon einmal geholfen?“\n\nGrundannahme: Alle haben Stärken – sie sind individuelle Energiequellen, wenn sie gelebt werden.","s":""},
+{"c":"3 PERMA & Flow","q":"Was ist die VIA-Klassifikation?","a":"Die Klassifikation von Charakterstärken nach Peterson & Seligman:\n• 6 Tugenden\n• 24 Charakterstärken\n\nTestmöglichkeit (im Skript genannt): persoenlichkeitsstaerken.ch\n\nKritikpunkt: Die feste Zahl von 6 Tugenden und 24 Stärken wird als „dogmatisch-ganzheitliche Denkformel“ kritisiert.","s":""},
+{"c":"3 PERMA & Flow","q":"Wie lautet der Lösungs- und Möglichkeits-Talk?","a":"STATT „Was ist das Problem?“ → „Was wünschen Sie sich stattdessen?“\n\nSTATT „Warum klappt das nicht?“ → „Was funktioniert schon gut, auch wenn es nur ein bisschen ist?“ (Ausnahmen finden)\n\nSTATT „Was sind die Hindernisse?“ → „Welche Ressourcen (innere/äußere) haben Sie, um die Herausforderung zu meistern?“","s":""},
+{"c":"3 PERMA & Flow","q":"Wie lautet die angepasste Wunderfrage?","a":"„Stellen Sie sich vor, über Nacht geschieht ein Wunder und Ihr Problem ist gelöst. Was wäre morgen früh das Allererste, woran Sie merken, dass das Wunder geschehen ist?“","s":""},
+{"c":"3 PERMA & Flow","q":"Klausurhinweis: Was ist Stärkenorientierung NICHT?","a":"Stärkenorientierung ist kein Schönreden und kein Ignorieren von Problemen.\n\nEs geht darum, Ressourcen sichtbar zu machen und für realistische Zielerreichung nutzbar zu machen.","s":""},
+
+{"c":"4 Mentale Gesundheit","q":"Was bedeutet ein dimensionales Verständnis von mentaler Gesundheit?","a":"Gesundheit ist kein „entweder … oder“.\n\nMenschen können gleichzeitig mehr oder weniger krank UND mehr oder weniger gesund sein. Gesundheit und Krankheit liegen auf einem Kontinuum.\n\nDaraus folgt: Wer keine diagnostizierte psychische Störung hat, ist nicht automatisch mental gesund.","s":""},
+{"c":"4 Mentale Gesundheit","q":"Was ist der Unterschied zwischen Pathogenese und Salutogenese?","a":"Pathogenese fragt: Was macht krank?\nSalutogenese fragt: Was hält gesund?","s":"Antonovsky"},
+{"c":"4 Mentale Gesundheit","q":"Stelle Pathogenese und Salutogenese in sechs Punkten gegenüber.","a":"PATHOGENESE | SALUTOGENESE\n1) Entstehung von Krankheit | Entstehung von Gesundheit\n2) Dichotomie (Krankheit/Gesundheit schließen sich aus) | Gesundheits-Krankheits-Kontinuum\n3) Fokus auf einzelne Symptome und Beschwerden | Ganzheitliche Betrachtung inkl. Lebenssituation und -geschichte\n4) Blick auf Risikofaktoren | Blick auf Bewältigungsressourcen und Kohärenzsinn\n5) Intervention: Einsatz von Heilmitteln | Intervention: aktive Anpassung, Ressourcenentwicklung, Risikoreduktion\n6) Bio-medizinisches Modell | Biopsychosoziales Modell","s":""},
+{"c":"4 Mentale Gesundheit","q":"Definiere den Kohärenzsinn.","a":"Der Kohärenzsinn ist eine globale Orientierung, die das Maß ausdrückt, in dem man ein durchdringendes, andauerndes, aber dynamisches Gefühl des Vertrauens hat, dass die eigene interne und externe Umwelt vorhersagbar ist und dass es eine hohe Wahrscheinlichkeit gibt, dass sich die Dinge so entwickeln werden, wie vernünftigerweise erwartet werden kann.\n\nHohe Kohärenz führt dazu, dass Ressourcen im Sinne der mentalen Gesundheit aktiviert werden.","s":"Antonovsky (1997), S. 16"},
+{"c":"4 Mentale Gesundheit","q":"Nenne die drei Komponenten des Kohärenzsinns.","a":"1. Verstehbarkeit\n2. Handhabbarkeit\n3. Sinnhaftigkeit","s":""},
+{"c":"4 Mentale Gesundheit","q":"Was beschreibt das Doppel-Kontinuum der mentalen Gesundheit nach Keyes (2002)?","a":"Zwei unabhängige Dimensionen:\n• Achse 1: Vorliegen/Ausmaß einer psychischen Erkrankung\n• Achse 2: Ausmaß mentalen Wohlbefindens\n\nDaraus ergeben sich vier Zustände:\n• Flourishing / Aufblühen (hohes Wohlbefinden, keine Erkrankung)\n• Languishing / Verkümmern (niedriges Wohlbefinden, keine Erkrankung)\n• Kämpfend (Erkrankung, aber hohes Wohlbefinden)\n• Strauchelnd (Erkrankung und niedriges Wohlbefinden)","s":"Keyes (2002)"},
+{"c":"4 Mentale Gesundheit","q":"Was bedeutet Languishing – und warum ist es klausurrelevant?","a":"Languishing = Verkümmern: niedriges mentales Wohlbefinden OHNE zwingend diagnostizierte psychische Erkrankung.\n\nRelevanz: Zeigt, dass die Abwesenheit von Krankheit nicht ausreicht. Coaching setzt genau hier an – Bewegung von Languishing in Richtung Flourishing.","s":""},
+{"c":"4 Mentale Gesundheit","q":"Was heißt „Coaches sind Architekten des Aufblühens“?","a":"• Coaches sind nicht „nur“ Reparateure von Defiziten\n• Fokus auf die vertikale Achse: Menschen von Languishing zu Flourishing begleiten\n• Ressourcen von „kämpfenden“ Klient:innen erkennen und würdigen\n• Bei klinischen Themen: Kooperation bzw. Kombination mit Therapeut:innen","s":""},
+{"c":"4 Mentale Gesundheit","q":"Wie hängen Salutogenese, mentale Gesundheit, Wohlbefinden und Resilienz zusammen?","a":"• Salutogenese = übergeordnetes Paradigma/Philosophie mit Ressourcenfokus\n• Mentale Gesundheit (Keyes) = differenziertes Diagnosemodell, um den Zustand einer Person zu verorten\n• Wohlbefinden/Flourishing = Ziel bzw. Optimalzustand innerhalb dieses Modells\n• Resilienz = dynamischer Prozess bzw. Motor, der Bewegung in dem Modell ermöglicht: schützt vor dem Abrutschen in Krankheit (horizontal) und treibt Wachstum Richtung Flourishing an (vertikal)","s":""},
+
+{"c":"5 Resilienz","q":"Definiere Resilienz (wissenschaftlich).","a":"„Resilienz ist der Prozess der guten Anpassung angesichts von Widrigkeiten, Traumata, Tragödien, Bedrohungen oder signifikanten Stressquellen.“ (in Anlehnung an die APA)\n\n→ nicht statisch, sondern flexibel\n→ dynamischer Anpassungsprozess\n→ es gibt „Widrigkeiten“ – ohne Belastung keine Resilienz\n→ kritischer Diskurs; es gibt NICHT die eine einheitliche Definition","s":"APA; Wessa (2025)"},
+{"c":"5 Resilienz","q":"Woher stammt der Begriff Resilienz und was bedeutet er in Physik und Psychologie?","a":"• Lat.: „zurückspringen“, „abprallen“\n• Physik: in die ursprüngliche Form zurückfinden\n• Psychologie: Widerstandsfähigkeit; Aushalten und Bewältigen von Krisen; positiver Umgang mit Stress und kritischen Ereignissen","s":""},
+{"c":"5 Resilienz","q":"Mythos 1: „Resilienz bedeutet, nach einer Krise schnell wieder der/die Alte zu sein.“","a":"FALSCH.\n\nResilienz bedeutet nicht unbedingt die Rückkehr zum exakten Ausgangszustand. Oft entsteht posttraumatisches Wachstum: Menschen entwickeln neue Prioritäten, Stärken oder eine tiefere Wertschätzung für das Leben.\n\n→ Nicht „die Alten“, sondern eine veränderte, oft reifere Version ihrer selbst.","s":""},
+{"c":"5 Resilienz","q":"Mythos 2: „Resilienz ist dasselbe wie Härte oder ein dickes Fell.“","a":"FALSCH.\n\nHärte impliziert oft Unflexibilität und das Abblocken von Emotionen.\n\nResilienz erfordert psychologische Flexibilität – die Fähigkeit, sich anzupassen, Emotionen zu akzeptieren (statt sie zu unterdrücken) und aus Erfahrungen zu lernen.","s":""},
+{"c":"5 Resilienz","q":"Mythos 3: „Resilienz braucht man nur in großen Lebenskrisen.“","a":"FALSCH.\n\nResilienz ist auch die Fähigkeit, mit alltäglichen Stressoren, kleinen Rückschlägen und chronischem Druck umzugehen.\n\nDiese „Mikro-Resilienz“ ist entscheidend, um das tägliche Wohlbefinden aufrechtzuerhalten.","s":""},
+{"c":"5 Resilienz","q":"Mythos 4: „Wer resilient ist, braucht keine Hilfe von anderen.“","a":"FALSCH – einer der größten Mythen.\n\nSoziale Unterstützung und die Fähigkeit, um Hilfe zu bitten, sind zentrale Säulen der Resilienz. Resiliente Menschen sind oft besonders gut darin, ihre sozialen Netzwerke zu aktivieren und zu nutzen.\n\nResilienz ist keine rein individualistische „Einzelkämpfer“-Leistung.","s":""},
+{"c":"5 Resilienz","q":"Mythos 5: „Optimismus ist der wichtigste Faktor für Resilienz.“","a":"FALSCH.\n\nOptimismus ist wichtig, aber nicht allein entscheidend – blinder Optimismus kann sogar schaden.\n\nWichtiger ist realistischer Optimismus, gepaart mit Akzeptanz, Problemlösekompetenz und der Fähigkeit, soziale Unterstützung zu mobilisieren. Ein resilienter Mensch ist Optimist, Realist UND Macher.","s":""},
+{"c":"5 Resilienz","q":"Was war die Kauai-Studie und was hat sie gezeigt?","a":"Pionierarbeit, die den Begriff Resilienz populär machte (Werner & Smith, 1982).\n\n• Über 30 Jahre wurde ein Geburtsjahrgang von 698 Kindern auf Kauai/Hawaii begleitet\n• Viele litten unter erheblichen Risikofaktoren (Armut, perinatale Komplikationen, psychische Störungen der Eltern)\n• Ergebnis: ca. ein Drittel entwickelte sich zu fürsorglichen, kompetenten und zuversichtlichen Erwachsenen\n• Fokusverschiebung von Risiko- zu Schutzfaktoren (z. B. enge Bindung zu mindestens einer Bezugsperson, positives soziales Umfeld)","s":"Werner & Smith (1982)"},
+{"c":"5 Resilienz","q":"Welchen Beitrag leistete Michael Rutter zur Resilienzforschung?","a":"Rutter konzeptualisierte Resilienz als dynamischen, interaktiven Prozess.\n\nSeine Forschung zeigte: Es ist die Interaktion zwischen Individuum und Umwelt, die Resilienz hervorbringt.\n\nFragefokus: „Welche Prozesse führen zu resilienten Ergebnissen?“","s":"Rutter (1987)"},
+{"c":"5 Resilienz","q":"Was bedeutet „Ordinary Magic“ nach Ann Masten?","a":"Resilienz entsteht NICHT aus seltenen, übermenschlichen oder außergewöhnlichen Eigenschaften.\n\nSie ist das Ergebnis der normalen Funktionsweise fundamentaler menschlicher adaptiver Systeme:\n• sicheres Bindungssystem\n• kognitive Problemlösefähigkeiten\n• Systeme zur Selbstregulation von Emotionen und Aufmerksamkeit\n• Erleben von Selbstwirksamkeit\n• funktionierende soziale Systeme (Familie, Schule, Gemeinschaft)","s":"Masten (2001)"},
+{"c":"5 Resilienz","q":"Nenne die 7 Säulen der Resilienz.","a":"1. Akzeptanz\n2. Optimismus\n3. Lösungsorientierung\n4. Verlassen der Opferrolle (Selbstwirksamkeit)\n5. Verantwortung übernehmen\n6. Netzwerkorientierung (Beziehungsgestaltung)\n7. Zukunftsplanung","s":"Reivich & Shatté (2002); Rampe (2005)"},
+{"c":"5 Resilienz","q":"7 Säulen – Was bedeutet Akzeptanz?","a":"Annehmen, was nicht veränderbar ist, und Energie auf das Machbare lenken.\n\nEvidenz: Psychologische Flexibilität – schwierige Gefühle akzeptieren und werteorientiert handeln – ist ein Kernmechanismus psychischer Gesundheit (ACT-Forschung, Hayes 2019).","s":""},
+{"c":"5 Resilienz","q":"7 Säulen – Was bedeutet Optimismus?","a":"Glaube an eine positive Zukunft und die eigene Gestaltungsfähigkeit.\n\nEvidenz: Optimismus korreliert signifikant mit besseren Bewältigungsstrategien und geringeren Entzündungswerten im Körper bei Stress (Scheier & Carver, 2018).","s":""},
+{"c":"5 Resilienz","q":"7 Säulen – Was bedeutet Lösungsorientierung?","a":"Fokus auf Lösungen statt (ausschließlich) auf Probleme.\n\nEvidenz: Eine hohe Selbstwirksamkeitserwartung ist einer der stärksten Prädiktoren für Zielerreichung und Ausdauer bei Rückschlägen (Talsma et al., 2018).","s":""},
+{"c":"5 Resilienz","q":"7 Säulen – Was bedeutet „Verlassen der Opferrolle“ / Selbstwirksamkeit?","a":"Überzeugung, Einfluss auf das eigene Leben nehmen zu können.\n\nEvidenz: Ein internaler Kontrollüberzeugungs-Locus („Ich habe Einfluss“) ist konsistent mit höherer Lebenszufriedenheit und proaktiverem Gesundheitsverhalten assoziiert als ein externaler Locus („Andere/das Schicksal bestimmen“) (Nowicki, 2017).","s":""},
+{"c":"5 Resilienz","q":"7 Säulen – Was bedeutet Verantwortung übernehmen?","a":"Verantwortung für das eigene Handeln und Fühlen übernehmen.\n\nVerbunden mit Coveys Unterscheidung von Betroffenheitsbereich (Circle of Concern) und Einflussbereich (Circle of Influence).","s":""},
+{"c":"5 Resilienz","q":"7 Säulen – Was bedeutet Netzwerkorientierung?","a":"Aktives Pflegen und Nutzen sozialer Unterstützung (Beziehungsgestaltung).\n\nEvidenz: Soziale Unterstützung wirkt als „Stress-Puffer“. Neurobiologische Studien zeigen, dass soziale Verbundenheit die Ausschüttung von Oxytocin fördert, was die physiologische Stressreaktion (Cortisol) dämpft (Inagaki & Eisenberger, 2016).","s":""},
+{"c":"5 Resilienz","q":"7 Säulen – Was bedeutet Zukunftsplanung?","a":"Sich realistische und sinnstiftende Ziele setzen.\n\nEvidenz: Die Fähigkeit zur „prospektiven Kognition“ – dem mentalen Simulieren zukünftiger Ereignisse und Ziele – ist entscheidend für motiviertes Handeln und die Regulation von Emotionen in der Gegenwart (Seligman et al., 2013, Homo Prospectus).","s":""},
+{"c":"5 Resilienz","q":"Was unterscheidet Betroffenheitsbereich und Einflussbereich (Covey)?","a":"Betroffenheitsbereich („Circle of Concern“): alles, was mich beschäftigt und betrifft, worauf ich aber keinen Einfluss habe → Akzeptanz\n\nEinflussbereich („Circle of Influence“): das, worauf ich tatsächlich einwirken kann → Gestaltungsprinzip\n\nInnerster Kern = Kontrolle: das eigene Verhalten und die eigenen Gedanken.","s":"Covey (1989, 2004)"},
+{"c":"5 Resilienz","q":"Was ist das Master Resilience Training (MRT)?","a":"Kern des „Comprehensive Soldier Fitness“ (CSF)-Programms, das Seligman für die U.S. Army entwickelt hat.\n\nZiel: Behandlung von PTBS UND präventive Stärkung der psychologischen Fitness, um auf Widrigkeiten vorzubereiten.\n\nKernbotschaft: Resilienz ist trainierbar – als kognitive und emotionale Fähigkeit.","s":"Seligman (2011), Flourish, Kap. 5"},
+{"c":"5 Resilienz","q":"Nenne die 6 Kernkompetenzen des Master Resilience Trainings.","a":"1. Selbst-Bewusstheit (Self-Awareness): eigene Gedanken, Emotionen und Reaktionen in Stresssituationen erkennen\n2. Selbst-Regulation (Self-Regulation): Emotionen und Impulse steuern, z. B. durch Atemtechniken\n3. Optimismus: Anwendung des ABCDE-Modells zur Umstrukturierung pessimistischer Gedanken\n4. Mentale Agilität: Probleme aus verschiedenen Perspektiven betrachten und „Denkfallen“ erkennen\n5. Charakterstärken: eigene VIA-Signaturstärken kennen und bewusst zur Bewältigung einsetzen\n6. Verbindung (Connection): starke soziale Beziehungen als Schutzfaktor aufbauen und pflegen","s":""},
+{"c":"5 Resilienz","q":"Wofür stehen die Buchstaben des ABCDE-Modells?","a":"A – Adversity (Auslöser): Was ist objektiv passiert?\nB – Beliefs (Bewertungen): Welche Gedanken gingen mir sofort durch den Kopf?\nC – Consequences (Konsequenzen): Was war die Folge dieser Gedanken – Gefühle und Verhalten?\nD – Disputation (Diskussion): Die Gedanken aus B in Frage stellen.\nE – Energization (Neue Energie): Was ist das Ergebnis der Diskussion?","s":""},
+{"c":"5 Resilienz","q":"ABCDE: Welche vier Strategien gehören zum Schritt D – Disputation?","a":"1) Evidenz: Welche Beweise gibt es wirklich für diesen Gedanken? Welche dagegen?\n2) Alternativen: Gibt es eine andere, wohlwollendere oder realistischere Erklärung?\n3) Nützlichkeit: Hilft mir dieser Gedanke, mein Ziel zu erreichen, oder blockiert er mich?\n4) Worst-Case (De-Katastrophisierung): Selbst wenn der Gedanke wahr wäre – was wäre das Schlimmste? Könnte ich damit umgehen? Wie?","s":""},
+{"c":"5 Resilienz","q":"ABCDE: Was passiert im Schritt E – Energization?","a":"Was ist das Ergebnis der Diskussion?\n\n• Gefühle: Wie fühle ich mich jetzt, nachdem ich meine Gedanken hinterfragt habe?\n• Verhalten: Welcher konstruktive nächste Schritt ergibt sich daraus? Was tue ich jetzt?","s":""},
+{"c":"5 Resilienz","q":"Kritik an Resilienz – Kritikpunkt 1: Individualisierung und Victim Blaming.","a":"Der Fokus auf individuelle Resilienz kann von systemischen Problemen ablenken.\n\nStatt ein toxisches Arbeitsumfeld zu verändern, wird vom Mitarbeitenden verlangt, „resilienter“ zu werden. Die Verantwortung wird vom System auf das Individuum verschoben.","s":"Welsh (2021)"},
+{"c":"5 Resilienz","q":"Kritik an Resilienz – Kritikpunkt 2: Druck zur Unverwundbarkeit und toxische Positivität.","a":"Das Ideal des „unverwundbaren“ resilienten Menschen kann dazu führen, dass legitime negative Emotionen wie Trauer, Wut oder Angst unterdrückt werden.\n\nResilienz wird mit dem Fehlen emotionaler Reaktion verwechselt. Echte Verarbeitung und posttraumatisches Wachstum werden so verhindert.","s":""},
+{"c":"5 Resilienz","q":"Kritik an Resilienz – Kritikpunkt 3: Kulturelle und kontextuelle Blindheit.","a":"Viele Resilienzmodelle (z. B. die 7 Säulen) sind westlich-individualistisch geprägt – etwa durch den Fokus auf Selbstwirksamkeit und Optimismus.\n\nIn kollektivistischen Kulturen könnten soziale Harmonie, das Akzeptieren des Schicksals oder die Stärke der Gemeinschaft zentralere Resilienzfaktoren sein.","s":""},
+{"c":"5 Resilienz","q":"Welche drei Forschungslücken/Limitationen gibt es bei Resilienz?","a":"1) Geringe Effektstärken: Die meisten identifizierten Resilienzfaktoren weisen für sich genommen nur sehr kleine bis kleine Effekte auf.\n2) Mangel an Längsschnittdaten: Viele Studien haben keine Daten aus der Zeit VOR dem belastenden Ereignis – das erschwert die Identifikation tatsächlicher Schutzfaktoren.\n3) Fokus auf Individuen: Interventionsprogramme konzentrieren sich stark auf das Individuum; soziale und gesellschaftliche Mechanismen sind unzureichend untersucht.","s":""},
+{"c":"5 Resilienz","q":"Fasse Resilienz in drei Kernsätzen zusammen.","a":"1) Resilienz ist ein trainierbarer Prozess, keine angeborene Eigenschaft.\n2) Sie ist der Motor für mentale Gesundheit und hilft, in Richtung Flourishing zu wachsen.\n3) Als Coaches können wir Klient:innen helfen, ihre persönliche Resilienz-Landschaft zu verstehen und gezielt zu kultivieren.\n\n„Zwischen Reiz und Reaktion liegt ein Raum. In diesem Raum liegt unsere Macht zur Wahl unserer Reaktion. In unserer Reaktion liegen unsere Entwicklung und unsere Freiheit.“ – Viktor E. Frankl","s":""},
+{"c":"5 Resilienz","q":"Nenne aktuelle Forschungsbefunde zu Resilienz.","a":"• Hu et al. (2015, Meta-Analyse): Hohe Resilienz ↔ niedrige depressive Verstimmung; hohe Resilienz ↔ hohe Lebenszufriedenheit. Korrelationen stärker bei Frauen.\n• Stokburger-Sauer et al. (2023): Hohe Resilienz ↔ bessere Bewältigung von Life-Events (z. B. COVID-19) und gesündere Coping-Mechanismen.\n• Schäfer et al. (2024): Resiliente Reaktion wird durch individuelle, soziale UND gesellschaftliche Ebenen bestimmt.\n• Troy et al. (2023): Kritische Reflexion und Konzeptualisierung von Resilienz als Affektregulations-Framework.","s":""},
+
+{"c":"6 Positive Leadership","q":"Worauf konzentriert sich Führung häufig – und wie lautet die Leitfrage des Positive-Leadership-Ansatzes?","a":"Ausgangslage klassischer Führung:\n• Problemlösung, Fehleranalyse, „Feuer löschen“\n• Schließen von Leistungs- und Kompetenzlücken (Defizitorientierung)\n• Umgang mit Konflikten und Stressfaktoren\n• Zielerreichung durch Kontrolle und Anweisung\n\nLeitfrage Positive Leadership:\n„Was wäre, wenn wir uns darauf konzentrieren, was Organisationen und Menschen Leben, Energie und Leistungsfähigkeit verleiht?“","s":""},
+{"c":"6 Positive Leadership","q":"Welche zwei theoretischen Ansätze des Positive Leadership behandelt das Skript?","a":"1) Positive Leadership und Positive Organizational Scholarship nach Cameron\n2) PERMA-Lead® nach Ebner","s":""},
+{"c":"6 Positive Leadership","q":"Was ist das Ziel von Positive Leadership nach Cameron?","a":"„Positiv deviante“ Leistungen ermöglichen – also Ergebnisse, die weit über den Durchschnitt hinausragen.\n\nEs geht NICHT darum, Probleme zu ignorieren, sondern die Bedingungen für außergewöhnliches Gedeihen (Flourishing) zu schaffen.","s":"Cameron (2012)"},
+{"c":"6 Positive Leadership","q":"Nenne die vier Strategien von Positive Leadership nach Cameron.","a":"1. Positive Climate\n2. Positive Relationships\n3. Positive Communication\n4. Positive Meaning","s":"Cameron (2012)"},
+{"c":"6 Positive Leadership","q":"Cameron – Was bedeutet Positive Climate?","a":"• Fokus auf Empathie und Dankbarkeit\n• Schaffung von psychologischer Sicherheit, in der Fehler als Lernchancen gesehen werden\n\nKontrast: Statt „Wer ist für diesen Fehler verantwortlich?“ → „Was können wir gemeinsam aus diesem Fehler lernen?“","s":""},
+{"c":"6 Positive Leadership","q":"Cameron – Was bedeutet Positive Relationships?","a":"• Interaktionen, die Energie geben statt entziehen\n• Aufbau von Vertrauen und gegenseitigem Respekt\n• Stärken im anderen erkennen und benennen\n\nKontrast: Statt „Lassen Sie uns direkt zur Sache kommen.“ → „Wie geht es Ihnen? Was hat Sie diese Woche beschäftigt?“","s":""},
+{"c":"6 Positive Leadership","q":"Cameron – Was bedeutet Positive Communication?","a":"• Einsatz bekräftigender und unterstützender Sprache\n• Aufrechterhaltung einer hohen Ratio von positiven zu negativen Aussagen (vgl. Losada & Heaphy, 2004)\n\nKontrast: Statt Fokus auf das jährliche Kritikgespräch → regelmäßiges, spezifisches Feedback zu Stärken und Erfolgen im Alltag.","s":"Losada & Heaphy (2004)"},
+{"c":"6 Positive Leadership","q":"Cameron – Was bedeutet Positive Meaning?","a":"• Die Arbeit mit den persönlichen Werten der Mitarbeitenden verbinden\n• Den Beitrag der täglichen Aufgaben zum „großen Ganzen“ (Zweck, Vision) aufzeigen\n\nKontrast: Statt „Unsere Abteilung muss X % Umsatzsteigerung erreichen.“ → „Durch unsere Arbeit helfen wir unseren Kunden, Y zu erreichen. Jeder Beitrag zählt.“","s":""},
+{"c":"6 Positive Leadership","q":"Welche „harten Fakten“ liefert die Cameron-Studie (2011)?","a":"• 40 Geschäftseinheiten eines großen Finanzdienstleistungsunternehmens wurden untersucht\n• Strategische Ausrichtung: positive organisationale Praktiken (Mitgefühl, Dankbarkeit, Integrität, Vertrauen) aktiv in die Unternehmenskultur integrieren\n• Ergebnis: Einheiten, die diese Praktiken am stärksten verbesserten, erzielten statistisch signifikant bessere Rentabilitätswerte","s":"Cameron, Mora, Leutscher & Calarco (2011)"},
+{"c":"6 Positive Leadership","q":"Was ist die Grundidee von PERMA-Lead® nach Ebner?","a":"PERMA-Lead überträgt das PERMA-Modell auf Führung – zur „Stärkung der Stärken der Beschäftigten“.\n\nFührung soll ermöglichen:\n• positive Emotionen erleben\n• Engagement und Flow fördern\n• positive Beziehungen stärken\n• Sinn vermitteln\n• Erreichtes sichtbar machen","s":"Ebner (2017, 2024)"},
+{"c":"6 Positive Leadership","q":"PERMA-Lead: Positive Emotionen – Kerngedanke und Bedeutung für Führung?","a":"Kerngedanke: Bewusstes Fördern und Erleben positiver Gefühle (Freude, Dankbarkeit, Hoffnung, Interesse, Stolz, Gelassenheit) im Arbeitskontext. Es geht nicht darum, negative Emotionen zu unterdrücken, sondern den Raum für positive zu erweitern.\n\nBedeutung:\n• steigert Kreativität und Offenheit für Neues\n• verbessert Problemlösefähigkeiten\n• baut psychologische Ressourcen und Resilienz auf\n• fördert positives Arbeitsklima und soziale Bindungen\n• erhöht Motivation und Engagement","s":""},
+{"c":"6 Positive Leadership","q":"PERMA-Lead: Engagement – Kerngedanke und Bedeutung für Führung?","a":"Kerngedanke: Das Gefühl, in der Tätigkeit aufzugehen, konzentriert, involviert und intrinsisch motiviert zu sein („Flow“). Passung zwischen Herausforderungen der Aufgabe und eigenen Fähigkeiten/Stärken.\n\nBedeutung:\n• steigert Leistung und Produktivität\n• erhöht Arbeitszufriedenheit und Bindung ans Unternehmen\n• fördert Lernen und Kompetenzentwicklung\n• stärkt das Gefühl der Selbstwirksamkeit","s":""},
+{"c":"6 Positive Leadership","q":"PERMA-Lead: Relationships – Kerngedanke und Bedeutung für Führung?","a":"Kerngedanke: Erleben von Zugehörigkeit, gegenseitiger Unterstützung, Vertrauen und Wertschätzung; Gefühl, Teil einer Gemeinschaft zu sein, auf die man sich verlassen kann.\n\nBedeutung:\n• essentiell für Wohlbefinden und psychische Gesundheit\n• baut Vertrauen und psychologische Sicherheit auf – Basis für offene Kommunikation\n• fördert Teamzusammenhalt und effektive Zusammenarbeit\n• dient als Puffer bei Stress (soziale Unterstützung)\n• erhöht Bindung an Team und Unternehmen","s":""},
+{"c":"6 Positive Leadership","q":"PERMA-Lead: Meaning – Kerngedanke und Bedeutung für Führung?","a":"Kerngedanke: Das Gefühl, dass die eigene Arbeit bedeutsam ist und zu etwas beiträgt, das über einen selbst hinausgeht; Verbindung der Tätigkeit mit persönlichen Werten oder einem größeren Zweck (Vision, Mission).\n\nBedeutung:\n• stärkster Treiber für langfristige Motivation und Engagement\n• erhöht Arbeitszufriedenheit\n• steigert Resilienz gegenüber Schwierigkeiten und Rückschlägen\n• fördert das Gefühl, einen positiven Beitrag zu leisten\n• hilft bei der Priorisierung von Aufgaben","s":""},
+{"c":"6 Positive Leadership","q":"PERMA-Lead: Achievement – Kerngedanke und Bedeutung für Führung?","a":"Kerngedanke: Gefühl von Kompetenz und Selbstwirksamkeit durch Zielerreichung, Meistern von Herausforderungen und Wahrnehmen von Fortschritt.\n\nBedeutung:\n• stärkt Selbstvertrauen und Motivation\n• fördert das Gefühl, wirksam zu sein\n• gibt Orientierung und Struktur\n• macht Fortschritt sichtbar und messbar\n• trägt maßgeblich zur Arbeitszufriedenheit bei","s":""},
+{"c":"6 Positive Leadership","q":"Vergleiche Cameron und PERMA-Lead: Fokus, Anwendung, Gemeinsamkeiten.","a":"FOKUS\nCameron: stärker auf den organisationalen Kontext und die Kultur, die eine Führungskraft schafft (Klima, Kommunikation)\nPERMA-Lead: stärker auf die individuellen psychologischen Bedürfnisse und Wohlbefindens-Faktoren der Mitarbeitenden\n\nANWENDUNG\nCameron: gibt strategische Richtungen für die Kulturentwicklung vor\nPERMA-Lead: bietet ein konkretes Framework für die tägliche Führungsarbeit und Mitarbeitergespräche\n\nGEMEINSAMKEITEN\n• beide ressourcen- und stärkenorientiert\n• beide betonen Sinn (Meaning) und positive Beziehungen (Relationships)\n• beide zielen auf eine Win-Win-Situation: Wohlbefinden UND Leistung","s":""},
+{"c":"6 Positive Leadership","q":"Welche drei Testverfahren gehören zur PERMA-Lead-Diagnostik?","a":"1. Profiler\n2. Leadership- und Managementkompetenzen\n3. Führungs- und Organisationskulturanalyse","s":"perma-lead.com/testverfahren"},
+{"c":"6 Positive Leadership","q":"Was misst und zeigt der PERMA-Lead-Profiler?","a":"• Befragung der Führungskraft zu ihrem Positive-Leadership-Führungsverhalten\n• Zusätzlich werden Erwartungshaltung an den eigenen Führungsstil und Motivation zur Weiterentwicklung sichtbar\n• Online, ca. 15 Minuten Bearbeitungsdauer\n• Entwicklungspotenzial wird sichtbar durch die Differenz zwischen Verhalten und eigenen Erwartungen\n• 13-seitiger Auswertungsbericht","s":""},
+{"c":"6 Positive Leadership","q":"Erkläre die P-P-5-Technik.","a":"Schritt 1 – Positives 1: Die Stärke analysieren\nWas konkret läuft gut? Welche Beispiele gibt es? Warum funktioniert das gut? Welche Stärken stehen dahinter? Wer ist beteiligt? Wie geht es den Beteiligten, wenn es gut läuft?\n\nSchritt 2 – Positives 2: Potenziale im Entwicklungsfeld finden\nBereich mit dem größten Entwicklungspotenzial (niedrigster Wert und/oder größte Differenz). Was läuft in DIESEM Bereich bereits gut?\n\nSchritt 3 – 5 %: Konkrete Verbesserungs-Impulse\nWas kann getan werden, um den Bereich um 5 % zu verbessern? Was kann die Führungskraft selbst tun?","s":""},
+{"c":"6 Positive Leadership","q":"Welche Evidenz gibt es für Positive Leadership im Krankenhaus (Ebner)?","a":"Fluktuation („Wie häufig haben Sie in den letzten 9 Monaten überlegt, Ihren Job zu verlassen?“):\nje höher das PERMA-Lead-Verhalten der Führungskraft, desto geringer die Fluktuationsneigung (3,3 → 1,9); r = -.291, p < 0,001\n\nBurnout:\nje höher das PERMA-Lead-Verhalten, desto geringer die Burnout-Werte (2,1 → 1,3); r = -.392, p < 0,001","s":"Ebner (2024)"},
+{"c":"6 Positive Leadership","q":"Welche Grenzen und kritischen Punkte hat Positive Leadership?","a":"• Kein „Schönwetter-Konzept“: gerade in Krisen relevant; bedeutet nicht, Schwierigkeiten zu ignorieren\n• Authentizität ist entscheidend: aufgesetzte Positivität ist kontraproduktiv; die Haltung muss echt und die Praxis konsistent sein\n• Anspruchsvoll für die Führungskraft: erfordert hohe Selbstreflexion, emotionale Intelligenz und die Bereitschaft, traditionelle Machtstrukturen zu hinterfragen\n• Kontextabhängigkeit: Ein rein positiver Ansatz kann in hochgradig sicherheitskritischen oder akuten Notfallsituationen unangebracht sein","s":""},
+
+{"c":"7 Kritik & Grenzen","q":"Kritik an der Positiven Psychologie: Was ist mit „Oberflächlichkeit“ gemeint?","a":"• Wenig differenzierte Betrachtung im Vergleich zu anderen (Forschungs-)strömungen\n• Konstrukte wie Glück, Freude, Zufriedenheit und Wohlbefinden sind komplex und dürfen nicht eindimensional betrachtet werden\n• Gesellschaftliche und biographische Voraussetzungen sowie Lebensbedingungen wirken als mögliche Moderatorvariablen und müssen berücksichtigt werden","s":"Mayring (2012)"},
+{"c":"7 Kritik & Grenzen","q":"Welche sechs Ideologiemerkmale nach Salamun lassen sich in der Positiven Psychologie identifizieren?","a":"1. Absolutheits- und Ausschließlichkeitsansprüche\n2. Charismatische Führungspersonen\n3. Immunisierungsstrategien durch Leerformeln, Suggestivdefinitionen und Zirkelargumente\n4. Dichotomisierende Denkformeln\n5. Dogmatisch-ganzheitliche Denkformeln\n6. Utopisch-messianische Heilsideen","s":"Salamun (2001); Mayring (2012)"},
+{"c":"7 Kritik & Grenzen","q":"Kritik: Absolutheits- und Ausschließlichkeitsansprüche – Belege und Gegenfrage?","a":"Belege:\n• „A positive clinical psychology grounded in positive psychology's ideology of health, happiness and human strengths“ (Maddux et al., 2004)\n• „Positive psychology represents a potential ›golden era‹ in 21th-century America“ (Snyder & Lopez, 2007)\n\nGegenfrage: Wird dadurch wirklich der Ethos und das Tun der bisherigen psychologischen Richtungen in Frage gestellt?","s":""},
+{"c":"7 Kritik & Grenzen","q":"Kritik: Charismatische Führungspersonen – Vorwurf und Gegenfrage?","a":"Vorwurf: Seligman als Begründer und Repräsentant der Positiven Psychologie, der Weltgemeinschaft für Positive Psychologie sowie diverser Studiengänge.\n\nGegenfrage: Inwiefern haben wir das in anderen Richtungen der Psychologie nicht auch (gehabt), z. B. Freud?","s":""},
+{"c":"7 Kritik & Grenzen","q":"Kritik: Immunisierungsstrategien durch Leerformeln – Belege und Gegenfrage?","a":"Belege:\n• „Uncovering people's strengths and promoting their positive functioning“ (Snyder & Lopez, 2007)\n• „Cultivating positive emotions to optimize health and well-being“ (Fredrickson, 2000)\n\nGegenfrage: Inwiefern sind dies wirklich Leerformeln und Suggestionen? Was ist daran negativ? Wie würde uns eine Perspektive im Sinne der Pathologie weiterbringen?","s":""},
+{"c":"7 Kritik & Grenzen","q":"Kritik: Dichotomisierende Denkformeln – worum geht es?","a":"• Klare Dichotomisierung von Pathologie vs. Positiver Psychologie\n• Es wird der Anschein erweckt, andere Richtungen hätten sich noch nicht mit Stärken, Gesundheit und einer positiven Sichtweise beschäftigt\n\nGegenfrage/Einordnung: Was verbessert sich durch diese Perspektive? Auch die WHO-Gesundheitsdefinition enthält bereits Wohlbefinden. Positive Psychologie ist eher Ergänzung und Erweiterung als Ersatz.","s":""},
+{"c":"7 Kritik & Grenzen","q":"Kritik: Dogmatisch-ganzheitliche Denkformeln – worum geht es?","a":"• Die feste Struktur von sechs Tugenden und 24 Stärken (VIA)\n• Fehlende und zu vereinfacht dargestellte empirische Erkenntnisse\n\nGegenfrage: In welchen anderen Disziplinen und psychologischen Richtungen finden wir Ähnliches?","s":""},
+{"c":"7 Kritik & Grenzen","q":"Was ist mit „Zwangsbeglückung“ gemeint?","a":"Kritik, dass Positive Psychologie das Glücklichsein zur Pflicht macht:\n• „Zwangsbeglückung“ (Utsch, 2011)\n• „Aufgabe, das Glück zu finden“ (Ahmed, 2010)\n\nHintergrund: Steigendes Angebot von und Nachfrage nach Coaching/Trainings zur mentalen Stärke und Selbstoptimierung – bei gleichzeitig steigender Nachfrage nach Psychotherapie und steigender Zahl diagnostizierter psychischer Erkrankungen.\n\nDiskussionsfrage: Spricht das pro oder contra Positive Psychologie – und warum?","s":""},
+{"c":"7 Kritik & Grenzen","q":"Warum sind negative Emotionen aus Sicht einer seriösen Positiven Psychologie wichtig?","a":"Negative Emotionen sind funktional: Angst, Ärger, Trauer oder Frustration können warnen, Grenzen anzeigen oder Veränderung anstoßen.\n\nProblematisch wird Positive Psychologie erst, wenn negative Emotionen abgewertet oder verdrängt werden (toxische Positivität).\n\nWohlbefinden ist mehrdimensional: nicht nur positive Emotionen, sondern auch Sinn, Beziehungen, Engagement, Leistungserleben und Vitalität.","s":""},
+{"c":"7 Kritik & Grenzen","q":"„Was ist dran an der Kritik?“ – Nenne vier Gegenargumente.","a":"1) Es gab einen proaktiven Reform-Prozess innerhalb der Disziplin mit stark partizipativem Forschungsansatz und engem Austausch zwischen Forschung und Praxis.\n2) Eigentlich eher ein Miteinander als ein Gegeneinander: Positive Psychologie als interdisziplinärer Raum.\n3) Seriöse Positive Psychologie fordert nicht permanente positive Emotionen – Wohlbefinden ist mehrdimensional, negative Emotionen sind funktional.\n4) Die Forschung schreitet voran und muss weiter voranschreiten – wie in anderen Bereichen der Psychologie auch.","s":"Van Zyl (2025), Frontiers in Psychology"},
+{"c":"7 Kritik & Grenzen","q":"Wie sollte Kritik an der Positiven Psychologie in der Klausur eingeordnet werden?","a":"Kritik nicht als Widerlegung der Positiven Psychologie verstehen, sondern als Aufforderung zu differenzierter, kontextsensibler Anwendung.\n\nErwartet wird: Kritikpunkte nicht nur aufzählen, sondern diskutieren – Was ist berechtigt? Was ist verkürzt? Wie kann eine seriöse Positive Psychologie damit umgehen?","s":""},
+{"c":"7 Kritik & Grenzen","q":"Wie verändert sich die Positive Psychologie aktuell?","a":"• Positive Psychologie verändert sich und muss nicht dogmatisch sein\n• Aktuelle Entwicklungen betonen stärkere Differenzierung, Forschungsnähe, Praxisbezug und interdisziplinären Austausch\n• Die 4. Welle thematisiert u. a. posttraumatisches Wachstum (Mangelsdorf)","s":""},
+
+{"c":"8 Transfer & Evaluation","q":"Mit welchem Schema kann eine Transferaufgabe strukturiert beantwortet werden?","a":"1) Fall kurz einordnen: Welche PERMA-Elemente, Stärken, Flow-Bedingungen, Resilienzfaktoren oder Wohlbefindensaspekte sind beeinträchtigt?\n2) Konkretes Ziel formulieren – bezogen auf Wohlbefinden\n3) Theoretische Grundlage wählen und begründen\n4) Vierwöchige Intervention skizzieren: jede Woche Psychoedukation + praktische Übung + Selbstreflexion\n5) Evaluation: quantitativ UND qualitativ","s":""},
+{"c":"8 Transfer & Evaluation","q":"Worauf ist bei der Zielformulierung in der Transferaufgabe zu achten?","a":"• Das Ziel muss auf das Wohlbefinden der Person bezogen sein\n• Es sollte konkret, beobachtbar und im Zeitraum von vier Wochen realistisch erreichbar sein\n• Typische Zielrichtungen: mehr Engagement, mehr Sinn, mehr Selbstwirksamkeit, mehr positive Emotionen, bessere Balance zwischen Anforderungen und Fähigkeiten\n• Nicht das Gesamtproblem lösen wollen, sondern einen wirksamen ersten Schritt definieren","s":""},
+{"c":"8 Transfer & Evaluation","q":"Welche theoretischen Grundlagen eignen sich für eine Transferaufgabe?","a":"• PERMA(-V) – wenn mehrere Wohlbefindenselemente betroffen sind\n• Flow-Theorie – bei Passungsproblemen Fähigkeit/Anforderung\n• Charakterstärken / Stärkenorientierung – wenn Kernkompetenzen nicht gelebt werden\n• Broaden-and-Build – wenn Tunnelblick und fehlende Handlungsoptionen im Vordergrund stehen\n• Resilienz (7 Säulen, ABCDE) – bei Stress, Belastung und dysfunktionalen Bewertungen\n• Salutogenese / Doppel-Kontinuum (Keyes) – bei Languishing trotz äußerem Erfolg\n• Positive Leadership – wenn Führungsrolle und Teamkontext relevant sind","s":""},
+{"c":"8 Transfer & Evaluation","q":"Wie ist eine Interventionswoche in der Transferaufgabe aufgebaut?","a":"Jede der vier Wochen enthält drei Bausteine:\n\n1) Kurze Psychoedukation – das Modell/Prinzip erklären\n2) Mindestens eine praktische Übung – konkret und alltagstauglich\n3) Raum für Selbstreflexion – Leitfragen, Tagebuch, Auswertungsgespräch","s":""},
+{"c":"8 Transfer & Evaluation","q":"Welche Instrumente eignen sich für eine QUANTITATIVE Evaluation?","a":"• Flow-Kurzskala (FKS, Rheinberg et al., 2019)\n• Satisfaction with Life Scale (SWLS)\n• HSWBS (Habituelle subjektive Wohlbefindensskala)\n• PERMA-Selbsteinschätzung / PERMA-Profiler\n• Resilienz-Selbsttest\n• Wöchentliche Ratings (Energie, Stress, Zufriedenheit, Schlafqualität) auf Skalen von 1–10\n• Arbeitsnahe Kennzahlen: Anteil stärkengerechter Tätigkeiten, Fehlerhäufigkeit, Fluktuationsneigung\n\nDesign: Prä-Post-Vergleich (Messung vor Woche 1 und nach Woche 4), ggf. Follow-up.","s":""},
+{"c":"8 Transfer & Evaluation","q":"Welche Instrumente eignen sich für eine QUALITATIVE Evaluation?","a":"• Reflexions-/Coachingtagebuch mit festen Leitfragen\n• Leitfadengestütztes Abschlussinterview\n• Offene Wochenreflexionen\n• Kritische Ereignisse / Situationsschilderungen\n• Auswertung über qualitative Inhaltsanalyse (Kategorienbildung)\n\nZiel: Verstehen, WIE und WARUM sich etwas verändert hat – nicht nur, dass es sich verändert hat.","s":""},
+{"c":"8 Transfer & Evaluation","q":"Warum sollte eine Evaluation quantitativ UND qualitativ angelegt sein?","a":"• Quantitativ: macht Veränderungen messbar und vergleichbar (Prä-Post), zeigt Effektrichtung und -größe\n• Qualitativ: erklärt Wirkmechanismen, erfasst individuelle Bedeutung, subjektives Erleben und unerwartete Effekte\n\n→ Mixed-Methods-Logik: Zahlen zeigen OB etwas wirkt, qualitative Daten zeigen WIE und WARUM.","s":""},
+{"c":"8 Transfer & Evaluation","q":"Transferfall Sophie – Fallanalyse in Stichworten.","a":"Sophie (34), Grafikdesignerin.\n\n• Früher: Flow, Energie, starke Identifikation bei kreativen Konzepten\n• Seit Umstrukturierung: 80 % standardisierte Werbevorlagen und administrative Projektkoordination\n• Beschreibt Arbeit als „langweilig und zermürbend“\n• Häufigere Flüchtigkeitsfehler, abends ausgelaugt und unzufrieden\n• Selbstwertgefühl leidet, da Kernkompetenzen kaum einsetzbar\n\nBeeinträchtigt: E (Engagement/Flow), A (Accomplishment), M (Meaning), Stärkennutzung.","s":""},
+{"c":"8 Transfer & Evaluation","q":"Transferfall Sophie – welche theoretische Grundlage und warum?","a":"Primär Flow-Theorie (Csikszentmihalyi) + Stärkenorientierung, eingebettet in PERMA.\n\nBegründung:\n• Die Passung zwischen Fähigkeit (hoch) und Anforderung (zu niedrig/routiniert) ist gestört → klassische Unterforderung/Langeweile\n• Ihre Charakterstärke Kreativität kann nicht ausgelebt werden → Energieverlust (Stärken-Check Punkt 2 und 3)\n• Die Flüchtigkeitsfehler sind ein typisches Symptom mangelnder Aufmerksamkeitsbindung bei Unterforderung","s":""},
+{"c":"8 Transfer & Evaluation","q":"Transferfall Tom – Fallanalyse in Stichworten.","a":"Tom (51), Handwerksmeister, kleiner Tischlereibetrieb.\n\n• Liebt Holzarbeit und Restaurierung alter Möbel – beherrscht das meisterhaft\n• Marktdruck: immer mehr Buchhaltung, Marketing, Kundenakquise – „Energieräuber“\n• Fühlt sich gestresst und frustriert\n• Kommt kaum noch zu dem, was er wirklich kann und liebt\n• Freude an der Selbstständigkeit geht verloren\n\nBeeinträchtigt: E (Engagement), M (Meaning), A (Achievement); zusätzlich Stressbelastung.","s":""},
+{"c":"8 Transfer & Evaluation","q":"Transferfall Tom – welche theoretische Grundlage und warum?","a":"Stärkenorientierung + PERMA, ergänzt um Resilienz (7 Säulen, ABCDE).\n\nBegründung:\n• Seine meisterhafte handwerkliche Kompetenz bekommt zu wenig Raum → Stärken werden nicht gelebt\n• Engagement, Meaning und Achievement sind beeinträchtigt\n• Er muss zusätzlich mit Marktdruck, Stress und neuen Rollenanforderungen umgehen → Resilienz (Akzeptanz, Lösungsorientierung, Verantwortung, Zukunftsplanung)","s":""},
+{"c":"8 Transfer & Evaluation","q":"Transferfall Daniel – Fallanalyse in Stichworten.","a":"Daniel (45), leitender IT-Projektmanager, seit über 15 Jahren im Großunternehmen.\n\n• Hohe Verantwortung, Zeitdruck, häufige Deadlines\n• Emotional ausgebrannt, schläft schlecht\n• „Alles gleichgültig“ – auch Hobbys und Freundschaften\n• Trotz Erfolg fehlt das Gefühl von Sinn und Anerkennung\n\nBeeinträchtigt: P, R, M, V; Hinweise auf Languishing bzw. Burnout-Nähe trotz beruflichen Erfolgs.","s":""},
+{"c":"8 Transfer & Evaluation","q":"Transferfall Daniel – welche theoretische Grundlage und worauf ist zu achten?","a":"Doppel-Kontinuum der mentalen Gesundheit (Keyes) + PERMA-V, ergänzt um Resilienz.\n\nBegründung: Daniel hat äußeren Erfolg, aber niedriges mentales Wohlbefinden → Languishing. Genau das macht das Keyes-Modell sichtbar.\n\nACHTUNG (klausurrelevanter Zusatz):\n• Resilienz vorsichtig einsetzen – keine Individualisierung struktureller Überlastung\n• Emotionale Erschöpfung, Schlafstörungen und Anhedonie sind mögliche Burnout-/Depressionshinweise → Grenzen des Coachings benennen und Abklärung bzw. Kooperation mit therapeutischen/medizinischen Fachstellen empfehlen","s":""},
+{"c":"8 Transfer & Evaluation","q":"Was ist die Best-Possible-Self-Übung – und was gilt für die Klausur?","a":"ACHTUNG: Laut Skript ausdrücklich NICHT klausurrelevant.\n\nDefinition: Eine schriftliche Übung (ca. 20 Minuten), bei der man sich eine Zukunft vorstellt, in der das volle Potenzial ausgeschöpft und alle realistischen Ziele erreicht wurden.\n\nKernidee: keine unrealistischen Fantasien, sondern die bestmögliche Version der eigenen realistischen Zukunft.\nFokus: Stärken, Werte, Ziele und positive Emotionen.\n\nAls Transferbaustein möglich – aber als theoretische Hauptgrundlage besser PERMA, Flow, Stärken, Resilienz oder Wohlbefinden wählen.","s":"King (2001)"},
+{"c":"8 Transfer & Evaluation","q":"Über welche vier Wirkmechanismen wirkt die Best-Possible-Self-Übung?","a":"1) Steigert Optimismus und positive Emotionen – das intensive Erleben einer positiven Zukunft hebt die Stimmung\n2) Klärung von Zielen und Werten – schafft Klarheit und Orientierung\n3) Stärkung der Selbstwirksamkeit – der Weg zum Ziel erscheint machbarer\n4) Lösungsfokussiertes Priming – das Gehirn erkennt im Alltag eher Chancen und Möglichkeiten","s":""},
+{"c":"8 Transfer & Evaluation","q":"Wie ist die Klausur aufgebaut?","a":"• 90 Minuten, 100 % der Modulnote\n• 90 Punkte maximal = 1,0; 45 Punkte = 4,0 (bestanden)\n• Mindestens 10 % (voraussichtlich 30 %) Transferleistung, vorab bekannt gegeben\n• Fragearten: offene Fragen, Multiple Choice (Anzahl korrekter Optionen ist angegeben – mehr Kreuze = 0 Punkte), ggf. Lückentexte\n• Faustregel: 1 Punkt ≈ 1 Minute Schreibzeit\n• Orientierung an den Lernzielen der Abschnitte","s":""},
+{"c":"8 Transfer & Evaluation","q":"Welche sechs Themen sind laut Eingrenzung klausurrelevant?","a":"1. Einführung und Hauptentwicklungen\n2. Wohlbefinden, Glück und Lebenszufriedenheit\n3. PERMA(V): Vertiefung und Anwendung\n4. Resilienz\n5. Positive Leadership und PERMA-Lead\n6. Kritik und Grenzen der Positiven Psychologie","s":""}
+]
+</script>
+
+<script>
+(function(){
+  "use strict";
+  var ALL = JSON.parse(document.getElementById('cards').textContent);
+  ALL.forEach(function(c,i){ c.id = i; });
+
+  var KEY = 'pospsy-progress-v1';
+  var progress = {};
+  try { progress = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e){ progress = {}; }
+
+  var el = function(id){ return document.getElementById(id); };
+  var card = el('card'), qText = el('qText'), aText = el('aText'),
+      srcText = el('srcText'), tagF = el('tagF'), tagB = el('tagB'),
+      catSel = el('cat'), counter = el('counter'), stats = el('stats'),
+      barFill = el('barFill'), modeBtn = el('modeBtn');
+
+  var queue = [], pos = 0, onlyHard = false;
+
+  // Kategorien füllen
+  var cats = ALL.reduce(function(acc,c){ if(acc.indexOf(c.c)<0) acc.push(c.c); return acc; }, []);
+  var opt = document.createElement('option');
+  opt.value = '*'; opt.textContent = 'Alle Themen (' + ALL.length + ')';
+  catSel.appendChild(opt);
+  cats.forEach(function(k){
+    var n = ALL.filter(function(c){ return c.c === k; }).length;
+    var o = document.createElement('option');
+    o.value = k; o.textContent = k + ' (' + n + ')';
+    catSel.appendChild(o);
+  });
+  catSel.value = localStorage.getItem(KEY + '-cat') || '*';
+
+  function save(){
+    try {
+      localStorage.setItem(KEY, JSON.stringify(progress));
+      localStorage.setItem(KEY + '-cat', catSel.value);
+    } catch(e){}
+  }
+
+  function shuffle(a){
+    for (var i = a.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function build(keepShuffle){
+    var sel = catSel.value;
+    function inScope(c){ return sel === '*' || c.c === sel; }
+    queue = ALL.filter(function(c){
+      return inScope(c) && (!onlyHard || (progress[c.id] || 0) < 0);
+    });
+    if (!queue.length){
+      onlyHard = false;
+      modeBtn.textContent = 'Alle';
+      modeBtn.classList.remove('on');
+      queue = ALL.filter(inScope);
+    }
+    if (keepShuffle !== false) shuffle(queue);
+    pos = 0;
+    render();
+  }
+
+  function render(){
+    if (!queue.length) return;
+    if (pos >= queue.length) pos = 0;
+    if (pos < 0) pos = queue.length - 1;
+    var c = queue[pos];
+    card.classList.remove('flipped');
+    tagF.textContent = c.c;
+    tagB.textContent = c.c;
+    qText.textContent = c.q;
+    aText.textContent = c.a;
+    srcText.textContent = c.s ? 'Quelle: ' + c.s : '';
+    counter.textContent = 'Karte ' + (pos + 1) + ' / ' + queue.length;
+
+    var scope = ALL.filter(function(x){ return catSel.value === '*' || x.c === catSel.value; });
+    var known = scope.filter(function(x){ return (progress[x.id] || 0) > 0; }).length;
+    var hard  = scope.filter(function(x){ return (progress[x.id] || 0) < 0; }).length;
+    stats.textContent = '✔ ' + known + '  ·  ↻ ' + hard;
+    barFill.style.width = (scope.length ? (known / scope.length * 100) : 0) + '%';
+    card.querySelector('.front').scrollTop = 0;
+    card.querySelector('.back').scrollTop = 0;
+  }
+
+  function flip(){ card.classList.toggle('flipped'); }
+  function next(){ pos++; render(); }
+  function prev(){ pos--; render(); }
+
+  function mark(v){
+    var c = queue[pos];
+    progress[c.id] = v;
+    save();
+    next();
+  }
+
+  card.addEventListener('click', flip);
+  el('btnFlip').addEventListener('click', function(e){ e.stopPropagation(); flip(); });
+  el('btnGood').addEventListener('click', function(){ mark(1); });
+  el('btnAgain').addEventListener('click', function(){ mark(-1); });
+  el('btnNext').addEventListener('click', next);
+  el('btnPrev').addEventListener('click', prev);
+  el('shuffle').addEventListener('click', function(){ shuffle(queue); pos = 0; render(); });
+  catSel.addEventListener('change', function(){ save(); build(); });
+
+  modeBtn.addEventListener('click', function(){
+    onlyHard = !onlyHard;
+    modeBtn.textContent = onlyHard ? 'Nur ↻' : 'Alle';
+    modeBtn.classList.toggle('on', onlyHard);
+    build();
+  });
+
+  el('btnReset').addEventListener('click', function(){
+    if (!confirm('Fortschritt wirklich zurücksetzen?')) return;
+    progress = {}; save(); build();
+  });
+
+  // Tastatur (Desktop)
+  document.addEventListener('keydown', function(e){
+    if (e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); flip(); }
+    else if (e.key === 'ArrowRight') next();
+    else if (e.key === 'ArrowLeft') prev();
+    else if (e.key === '1') mark(-1);
+    else if (e.key === '2') mark(1);
+  });
+
+  // Wischgesten
+  var sx = 0, sy = 0, moved = false;
+  card.addEventListener('touchstart', function(e){
+    sx = e.touches[0].clientX; sy = e.touches[0].clientY; moved = false;
+  }, {passive:true});
+  card.addEventListener('touchmove', function(){ moved = true; }, {passive:true});
+  card.addEventListener('touchend', function(e){
+    if (!moved) return;
+    var dx = e.changedTouches[0].clientX - sx;
+    var dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5){
+      if (dx < 0) next(); else prev();
+    }
+  }, {passive:true});
+
+  build();
+
+  if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  }
+})();
+</script>
+</body>
+</html>
