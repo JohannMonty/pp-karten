@@ -1,6 +1,6 @@
 // Offline-Cache fuer die Karteikarten-App.
 // Version bei inhaltlichen Aenderungen hochzaehlen, damit iOS neu laedt.
-const CACHE = 'pospsy-v2';
+const CACHE = 'pospsy-v3';
 const ASSETS = [
   './',
   './index.html',
